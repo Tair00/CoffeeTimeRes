@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="backCardColor">#FF252A32</color>
+    <color name="searchColor">#FF40444A</color>
+    <color name="red">#FFF22F2F</color>
+    <color name="green">#FF60D835</color>
+    <color name="mainColor">#FFD17842</color>
+    <color name="smallTextColor">#FFAEAEAE</color>
+    <color name="backColor">#FF0C0F14</color>
+</resources>
