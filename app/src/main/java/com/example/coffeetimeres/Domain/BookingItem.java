@@ -1,52 +1,31 @@
 package com.example.coffeetimeres.Domain;
 
-public  class BookingItem {
-
-
-    private String time;
-    private String name;
+public class BookingItem {
     private String status;
+    private String userName;
+    private String cafeName;
+    private String pickUpTime;
+    private String coffeeName;
+    private String coffeeDescription;
+    private String coffeeImage;
+    private int bookingId;
+    private int cafeId;
+    private int coffeeId;
 
-    private Integer id;
-
-
-
-
-
-
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public BookingItem(String status, String time, String name) {
-        this.time = time;
-        this.name = name;
+    public BookingItem(String status, String userName, String cafeName, String pickUpTime, String coffeeName, String coffeeDescription, String coffeeImage, int bookingId, int cafeId, int coffeeId) {
         this.status = status;
-
+        this.userName = userName;
+        this.cafeName = cafeName;
+        this.pickUpTime = pickUpTime;
+        this.coffeeName = coffeeName;
+        this.coffeeDescription = coffeeDescription;
+        this.coffeeImage = coffeeImage;
+        this.bookingId = bookingId;
+        this.cafeId = cafeId;
+        this.coffeeId = coffeeId;
     }
 
-    public BookingItem( String status, String time, String name, Integer id) {
-        this.id = id;
-        this.time = time;
-        this.name = name;
-        this.status=status;
-    }
-
-
-
+    // Геттеры и сеттеры для всех полей
     public String getStatus() {
         return status;
     }
@@ -55,12 +34,75 @@ public  class BookingItem {
         this.status = status;
     }
 
-
-    public String getTime() {
-        return time;
+    public String getUserName() {
+        return userName;
     }
 
-    public String getName() {
-        return name;
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getCafeName() {
+        return cafeName;
+    }
+
+    public void setCafeName(String cafeName) {
+        this.cafeName = cafeName;
+    }
+
+    public String getPickUpTime() {
+        return pickUpTime;
+    }
+
+    public void setPickUpTime(String pickUpTime) {
+        this.pickUpTime = pickUpTime;
+    }
+
+    public String getCoffeeName() {
+        return coffeeName;
+    }
+
+    public void setCoffeeName(String coffeeName) {
+        this.coffeeName = coffeeName;
+    }
+
+    public String getCoffeeDescription() {
+        return coffeeDescription;
+    }
+
+    public void setCoffeeDescription(String coffeeDescription) {
+        this.coffeeDescription = coffeeDescription;
+    }
+
+    public String getCoffeeImage() {
+        return coffeeImage;
+    }
+
+    public void setCoffeeImage(String coffeeImage) {
+        this.coffeeImage = coffeeImage;
+    }
+
+    public int getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(int bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public int getCafeId() {
+        return cafeId;
+    }
+
+    public void setCafeId(int cafeId) {
+        this.cafeId = cafeId;
+    }
+
+    public int getCoffeeId() {
+        return coffeeId;
+    }
+
+    public void setCoffeeId(int coffeeId) {
+        this.coffeeId = coffeeId;
     }
 }

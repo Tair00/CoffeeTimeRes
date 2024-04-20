@@ -47,7 +47,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         this.token = token;
     }
     public void fetchData() {
-        String serverUrl = "https://losermaru.pythonanywhere.com/reservation";
+        String serverUrl = "https://losermaru.pythonanywhere.com/orders/";
         RequestQueue queue = Volley.newRequestQueue(context);
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, serverUrl, null,
                 new Response.Listener<JSONObject>() {
@@ -68,14 +68,29 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
 
     private void parseResponse(JSONObject response) {
         try {
-            JSONArray jsonArray = response.getJSONArray("data");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
+            boolean hasNewAcceptedItems = false;
+
+            for (int i = 0; i < response.length(); i++) {
+                JSONObject jsonObject = response.getJSONObject(String.valueOf(i));
+                int id = jsonObject.getInt("id");
                 String status = jsonObject.getString("status");
-                if (status == "waiting") {
-                    String time = jsonObject.getString("time");
-                    String name = jsonObject.getString("name");
-                    bookingList.add(new BookingItem(status , time, name));
+
+                if ("waiting".equals(status)) {
+                    JSONObject userObject = jsonObject.getJSONObject("user");
+                    String name = userObject.getString("name");
+
+                    JSONObject cafeObject = jsonObject.getJSONObject("cafe");
+                    int cafeId = cafeObject.getInt("id");
+                    String cafeName = cafeObject.getString("name");
+
+                    JSONObject coffeeObject = jsonObject.getJSONObject("coffee");
+                    int coffeeId = coffeeObject.getInt("id");
+                    String coffeeName = coffeeObject.getString("name");
+                    String coffeeDescription = coffeeObject.getString("description");
+                    String coffeeImage = coffeeObject.getString("image");
+
+                    String pickUpTime = jsonObject.getString("pick_up_time").substring(0, 16);
+                    bookingList.add(new BookingItem(status, name, cafeName, pickUpTime, coffeeName, coffeeDescription, coffeeImage, id, cafeId, coffeeId));
                 }
             }
             notifyDataSetChanged();
@@ -112,9 +127,8 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
             String status = item.getStatus();
             if ("waiting".equals(status)) {
                 if (count == position) {
-                    holder.timeTextView.setText(item.getTime());
-                    holder.nameTextView.setText(item.getName());
-
+                    holder.timeTextView.setText(item.getPickUpTime());
+                    holder.nameTextView.setText(item.getCoffeeName());
                     break;
                 }
                 count++;
@@ -135,7 +149,6 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
             nameTextView = itemView.findViewById(R.id.coffee_name);
             btnReject = itemView.findViewById(R.id.crossBtn);
             btnApprove = itemView.findViewById(R.id.check_markBtn);
-
             btnReject.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -165,7 +178,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         BookingItem bookingItem = bookingList.get(position);
         String newStatus = "rejected";
         System.out.println(newStatus);
-        updateBookingStatus(bookingItem.getId(), newStatus);
+        updateBookingStatus(bookingItem.getBookingId(), newStatus);
     }
 
     @Override
@@ -174,7 +187,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         BookingItem bookingItem = bookingList.get(position);
         String newStatus = "approved";
         System.out.println(newStatus);
-        updateBookingStatus(bookingItem.getId(), newStatus);
+        updateBookingStatus(bookingItem.getBookingId(), newStatus);
     }
 
     private void updateBookingStatus(int bookingId, String newStatus) {
@@ -193,14 +206,11 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
                     @Override
                     public void onResponse(JSONObject response) {
                         System.out.println(" Goood");
-                        // Обработка успешного ответа
-                        // Например, обновление UI или другие действия
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // Обработка ошибки запроса
                         Log.e("MyTag", "Error: " + error.getMessage());
                     }
                 }) {
@@ -213,7 +223,6 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
                 return headers;
             }
         };
-
         queue.add(request);
     }
 }

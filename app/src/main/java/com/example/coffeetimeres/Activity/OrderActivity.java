@@ -50,22 +50,16 @@ public class OrderActivity extends Activity {
         String token = getIntent().getStringExtra("access_token");
         recyclerView = findViewById(R.id.view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         bookingList = new ArrayList<>();
         adapter = new BookingListAdapter(OrderActivity.this, bookingList, token);
-
         recyclerView.setAdapter(adapter);
-
-        // Выполните GET-запрос к серверу для получения данных
         executeGetRequest();
     }
 
     private void executeGetRequest() {
         String token = getIntent().getStringExtra("access_token"); // Получение значения токена
-
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "https://losermaru.pythonanywhere.com/reservation";
-
+        String url = "https://losermaru.pythonanywhere.com/orders/";
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
                     @Override
@@ -89,37 +83,46 @@ public class OrderActivity extends Activity {
                 return headers;
             }
         };
-
         queue.add(request);
     }
     private void parseResponse(JSONArray response) {
         try {
-            boolean hasNewApprovedItems = false;
+            boolean hasNewAcceptedItems = false;
 
             for (int i = 0; i < response.length(); i++) {
                 JSONObject jsonObject = response.getJSONObject(i);
-                Integer id = jsonObject.getInt("restaurant_id");
+                int id = jsonObject.getInt("id");
                 String status = jsonObject.getString("status");
 
                 if ("waiting".equals(status)) {
-                    String time = jsonObject.getString("time");
+
                     String name = jsonObject.getString("name");
 
-                    BookingItem booking = new BookingItem(status,  time, name, id);
+                    JSONObject cafeObject = jsonObject.getJSONObject("cafe");
+                    int cafeId = cafeObject.getInt("id");
+                    String cafeName = cafeObject.getString("name");
+
+                    JSONObject coffeeObject = jsonObject.getJSONObject("coffee");
+                    int coffeeId = coffeeObject.getInt("id");
+                    String coffeeName = coffeeObject.getString("name");
+                    String coffeeDescription = coffeeObject.getString("description");
+                    String coffeeImage = coffeeObject.getString("image");
+
+                    String pickUpTime = jsonObject.getString("pick_up_time").substring(0, 16);
+
+                    BookingItem booking = new BookingItem(status, name, cafeName, pickUpTime, coffeeName, coffeeDescription, coffeeImage, id, cafeId, coffeeId);
 
                     if (!bookingList.contains(booking)) {
                         bookingList.add(booking);
-                        hasNewApprovedItems = true;
+                        hasNewAcceptedItems = true;
                     }
-
-                    fetchRestaurantName(id, booking);
                 }
             }
 
             adapter.notifyDataSetChanged();
 
-            if (hasNewApprovedItems) {
-
+            if (hasNewAcceptedItems) {
+                // Если есть новые принятые элементы, выполните необходимые действия
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -127,8 +130,9 @@ public class OrderActivity extends Activity {
             Toast.makeText(OrderActivity.this, "Error parsing response", Toast.LENGTH_SHORT).show();
         }
     }
+
     private void fetchRestaurantName(int id, BookingItem booking) {
-        String url = "https://losermaru.pythonanywhere.com/restaurant/" + id;
+        String url = "https://losermaru.pythonanywhere.com/orders/" + id;
         RequestQueue queue = Volley.newRequestQueue(this);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
@@ -137,7 +141,7 @@ public class OrderActivity extends Activity {
                     public void onResponse(JSONObject response) {
                         try {
                             String name = response.getString("name");
-                            booking.setName(name);
+                            booking.setCoffeeName(name);
                             adapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -152,6 +156,4 @@ public class OrderActivity extends Activity {
                 });
         queue.add(request);
     }
-
-
 }
