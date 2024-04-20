@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +36,7 @@ import java.util.Map;
 
 public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.ViewHolder> implements BookingItemClickListener {
     private  String token;
-    private Context context;
+    private static Context context;
     private List<BookingItem> bookingList;
 
     public BookingListAdapter(Context context, List<BookingItem> bookingList) {
@@ -129,6 +131,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
                 if (count == position) {
                     holder.timeTextView.setText(item.getPickUpTime());
                     holder.nameTextView.setText(item.getCoffeeName());
+                    holder.name.setText(item.getUserName());
                     break;
                 }
                 count++;
@@ -138,7 +141,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView timeTextView;
-        public TextView nameTextView;
+        public TextView nameTextView ,name;
         ConstraintLayout btnReject, btnApprove;
         BookingItemClickListener listener;
 
@@ -147,14 +150,29 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
             this.listener = listener;
             timeTextView = itemView.findViewById(R.id.time);
             nameTextView = itemView.findViewById(R.id.coffee_name);
+            name = itemView.findViewById(R.id.name);
             btnReject = itemView.findViewById(R.id.crossBtn);
             btnApprove = itemView.findViewById(R.id.check_markBtn);
             btnReject.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int position = getAdapterPosition();
+                    final int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION && listener != null) {
-                        listener.onRejectClick(position);
+                        Animation anim = AnimationUtils.loadAnimation(context, R.anim.scale_up_down);
+                        anim.setAnimationListener(new Animation.AnimationListener() {
+                            @Override
+                            public void onAnimationStart(Animation animation) {}
+
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+                                // После окончания анимации удаляем элемент из списка
+                                listener.onRejectClick(position);
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {}
+                        });
+                        v.startAnimation(anim);
                     }
                 }
             });
@@ -162,12 +180,27 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
             btnApprove.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int position = getAdapterPosition();
+                    final int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION && listener != null) {
-                        listener.onApproveClick(position);
+                        Animation anim = AnimationUtils.loadAnimation(context, R.anim.scale_up_down);
+                        anim.setAnimationListener(new Animation.AnimationListener() {
+                            @Override
+                            public void onAnimationStart(Animation animation) {}
+
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+                                // После окончания анимации удаляем элемент из списка
+                                listener.onApproveClick(position);
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {}
+                        });
+                        v.startAnimation(anim);
                     }
                 }
             });
+
         }
     }
 
@@ -178,7 +211,12 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         BookingItem bookingItem = bookingList.get(position);
         String newStatus = "rejected";
         System.out.println(newStatus);
+
         updateBookingStatus(bookingItem.getBookingId(), newStatus);
+
+        // Удаление элемента из списка и обновление отображения RecyclerView
+        bookingList.remove(position);
+        notifyDataSetChanged();
     }
 
     @Override
@@ -187,7 +225,12 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         BookingItem bookingItem = bookingList.get(position);
         String newStatus = "approved";
         System.out.println(newStatus);
+
         updateBookingStatus(bookingItem.getBookingId(), newStatus);
+
+        // Удаление элемента из списка и обновление отображения RecyclerView
+        bookingList.remove(position);
+        notifyDataSetChanged();
     }
 
     private void updateBookingStatus(int bookingId, String newStatus) {
