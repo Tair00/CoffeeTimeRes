@@ -1,9 +1,14 @@
 package com.example.coffeetimeres.Activity;
 
+
+
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,7 +29,7 @@ import com.example.coffeetimeres.R;
 
 public class LoginActivity extends AppCompatActivity {
     private Retrofit retrofit;
-
+    private static Context context;
     String serverUrl = "https://losermaru.pythonanywhere.com/login/";
 
     @Override
@@ -39,12 +44,21 @@ public class LoginActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Получаем анимацию из XML
+                Animation animation = AnimationUtils.loadAnimation(LoginActivity.this, R.anim.scale_up_down);
+
+                // Применяем анимацию к кнопке
+                button.startAnimation(animation);
+
+                // Далее ваш обычный код
                 String email = mail.getText().toString();
                 String userPassword = password.getText().toString();
 
                 new LoginAsyncTask().execute(email, userPassword);
             }
         });
+
+
     }
 
     private class LoginAsyncTask extends AsyncTask<String, Void, Boolean> {

@@ -92,72 +92,45 @@ public class OrderActivity extends Activity {
     }
     private void parseResponse(JSONArray response) {
         try {
-            boolean hasNewAcceptedItems = false;
-
             for (int i = 0; i < response.length(); i++) {
                 JSONObject jsonObject = response.getJSONObject(i);
-                int id = jsonObject.getInt("id");
                 String status = jsonObject.getString("status");
+                BookingItem booking = parseBookingItem(jsonObject);
 
                 if ("waiting".equals(status)) {
-
-                    String name = jsonObject.getString("name");
-
-                    JSONObject cafeObject = jsonObject.getJSONObject("cafe");
-                    int cafeId = cafeObject.getInt("id");
-                    String cafeName = cafeObject.getString("name");
-
-                    JSONObject coffeeObject = jsonObject.getJSONObject("coffee");
-                    int coffeeId = coffeeObject.getInt("id");
-                    String coffeeName = coffeeObject.getString("name");
-                    String coffeeDescription = coffeeObject.getString("description");
-                    String coffeeImage = coffeeObject.getString("image");
-
-                    String pickUpTime = jsonObject.getString("pick_up_time").substring(0, 16);
-
-                    BookingItem booking = new BookingItem(status, name, cafeName, pickUpTime, coffeeName, coffeeDescription, coffeeImage, id, cafeId, coffeeId);
-
-                    if (!bookingList.contains(booking)) {
-                        bookingList.add(booking);
-                        hasNewAcceptedItems = true;
-                    }
-                }
-                else if("approved".equals(status)) {
-                    String name = jsonObject.getString("name");
-
-                    JSONObject cafeObject = jsonObject.getJSONObject("cafe");
-                    int cafeId = cafeObject.getInt("id");
-                    String cafeName = cafeObject.getString("name");
-
-                    JSONObject coffeeObject = jsonObject.getJSONObject("coffee");
-                    int coffeeId = coffeeObject.getInt("id");
-                    String coffeeName = coffeeObject.getString("name");
-                    String coffeeDescription = coffeeObject.getString("description");
-                    String coffeeImage = coffeeObject.getString("image");
-
-                    String pickUpTime = jsonObject.getString("pick_up_time").substring(0, 16);
-
-                    BookingItem booking = new BookingItem(status, name, cafeName, pickUpTime, coffeeName, coffeeDescription, coffeeImage, id, cafeId, coffeeId);
-
-                    if (!approvedBookingList.contains(booking)) {
-                        approvedBookingList.add(booking);
-                        hasNewAcceptedItems = true;
-                    }
+                    bookingList.add(booking);
+                } else if ("approved".equals(status)) {
+                    approvedBookingList.add(booking);
                 }
             }
 
             adapter.notifyDataSetChanged();
             secondAdapter.notifyDataSetChanged();
-            if (hasNewAcceptedItems) {
-                // Если есть новые принятые элементы, выполните необходимые действия
-            }
         } catch (JSONException e) {
             e.printStackTrace();
-            Log.e("MyTag", "Ошибка при разборе ответа: " + e.getMessage());
+            Log.e("MyTag", "Error parsing response: " + e.getMessage());
             Toast.makeText(OrderActivity.this, "Error parsing response", Toast.LENGTH_SHORT).show();
         }
     }
 
+    private BookingItem parseBookingItem(JSONObject jsonObject) throws JSONException {
+        String status = jsonObject.getString("status");
+        int id = jsonObject.getInt("id");
+        String name = jsonObject.getString("name");
+        String pickUpTime = jsonObject.getString("pick_up_time").substring(0, 16);
+
+        JSONObject cafeObject = jsonObject.getJSONObject("cafe");
+        int cafeId = cafeObject.getInt("id");
+        String cafeName = cafeObject.getString("name");
+
+        JSONObject coffeeObject = jsonObject.getJSONObject("coffee");
+        int coffeeId = coffeeObject.getInt("id");
+        String coffeeName = coffeeObject.getString("name");
+        String coffeeDescription = coffeeObject.getString("description");
+        String coffeeImage = coffeeObject.getString("image");
+
+        return new BookingItem(status, name, cafeName, pickUpTime, coffeeName, coffeeDescription, coffeeImage, id, cafeId, coffeeId);
+    }
     private void fetchRestaurantName(int id, BookingItem booking) {
         String url = "https://losermaru.pythonanywhere.com/orders/" + id;
         RequestQueue queue = Volley.newRequestQueue(this);
