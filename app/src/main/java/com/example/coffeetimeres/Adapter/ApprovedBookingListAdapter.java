@@ -32,16 +32,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.ViewHolder> implements BookingItemClickListener {
+public class ApprovedBookingListAdapter extends RecyclerView.Adapter<ApprovedBookingListAdapter.ViewHolder> implements BookingItemClickListener {
     private  String token;
     private static Context context;
     private List<BookingItem> bookingList;
 
-    public BookingListAdapter(Context context, List<BookingItem> bookingList) {
+    public ApprovedBookingListAdapter(Context context, List<BookingItem> bookingList) {
         this.context = context;
         this.bookingList = bookingList;
     }
-    public BookingListAdapter(Context context, List<BookingItem> bookingList, String token) {
+    public ApprovedBookingListAdapter(Context context, List<BookingItem> bookingList, String token) {
         this.context = context;
         this.bookingList = bookingList;
         this.token = token;
@@ -103,7 +103,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.coffee_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.coffee_approved_item, parent, false);
         return new ViewHolder(view, this); // Передача текущего адаптера в качестве слушателя
     }
 
@@ -113,7 +113,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         int count = 0;
         for (BookingItem item : bookingList) {
             String status = item.getStatus();
-            if ("waiting".equals(status)) {
+            if ("approved".equals(status)) {
                 count++;
             }
         }
@@ -125,7 +125,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         int count = 0;
         for (BookingItem item : bookingList) {
             String status = item.getStatus();
-            if ("waiting".equals(status)) {
+            if ("approved".equals(status)) {
                 if (count == position) {
                     holder.timeTextView.setText(item.getPickUpTime());
                     holder.nameTextView.setText(item.getCoffeeName());
@@ -150,7 +150,6 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
             nameTextView = itemView.findViewById(R.id.coffee_name);
             name = itemView.findViewById(R.id.name);
             btnReject = itemView.findViewById(R.id.crossBtn);
-            btnApprove = itemView.findViewById(R.id.check_markBtn);
             btnReject.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -175,34 +174,8 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
                 }
             });
 
-            btnApprove.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION && listener != null) {
-                        Animation anim = AnimationUtils.loadAnimation(context, R.anim.scale_up_down);
-                        anim.setAnimationListener(new Animation.AnimationListener() {
-                            @Override
-                            public void onAnimationStart(Animation animation) {}
-
-                            @Override
-                            public void onAnimationEnd(Animation animation) {
-                                // После окончания анимации удаляем элемент из списка
-                                listener.onApproveClick(position);
-                            }
-
-                            @Override
-                            public void onAnimationRepeat(Animation animation) {}
-                        });
-                        v.startAnimation(anim);
-                    }
-                }
-            });
-
         }
     }
-
-
     @Override
     public void onRejectClick(int position) {
         // Ваш код обработки нажатия на кнопку отклонения заказа
@@ -216,7 +189,6 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         bookingList.remove(position);
         notifyDataSetChanged();
     }
-
     @Override
     public void onApproveClick(int position) {
         // Ваш код обработки нажатия на кнопку подтверждения заказа

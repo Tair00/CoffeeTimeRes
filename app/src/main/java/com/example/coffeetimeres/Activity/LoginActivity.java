@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -24,7 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import retrofit2.Retrofit;
 
-import com.example.coffeetimeres.Adapter.BookingListAdapter;
+import com.example.coffeetimeres.Adapter.ApprovedBookingListAdapter;
 import com.example.coffeetimeres.R;
 
 public class LoginActivity extends AppCompatActivity {
@@ -118,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
             if (success) {
                 // Аутентификация прошла успешно, отправляем данные email и переходим на MainActivity
                 Intent intent = new Intent(LoginActivity.this, OrderActivity.class);
-                Intent intent1 = new Intent(LoginActivity.this, BookingListAdapter.class);
+                Intent intent1 = new Intent(LoginActivity.this, ApprovedBookingListAdapter.class);
                 intent.putExtra("access_token", token);
                 System.out.println("===================================="+token);
                 intent.putExtra("email", email); // Используем поле email
