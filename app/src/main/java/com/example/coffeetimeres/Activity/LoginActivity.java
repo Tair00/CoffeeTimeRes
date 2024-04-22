@@ -25,17 +25,20 @@ import retrofit2.Retrofit;
 
 import com.example.coffeetimeres.Adapter.ApprovedBookingListAdapter;
 import com.example.coffeetimeres.R;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class LoginActivity extends AppCompatActivity {
     private Retrofit retrofit;
     private static Context context;
     String serverUrl = "https://losermaru.pythonanywhere.com/login/";
-
+     FirebaseAnalytics mFirebaseAnalytics;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
+        FirebaseApp.initializeApp(this);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         ConstraintLayout button = findViewById(R.id.login);
         EditText mail = findViewById(R.id.nameEdit);
         EditText password = findViewById(R.id.passwordEdit);
