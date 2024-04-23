@@ -2,15 +2,19 @@ package com.example.coffeetimeres.Activity;
 
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import org.json.JSONException;
@@ -25,12 +29,17 @@ import retrofit2.Retrofit;
 
 import com.example.coffeetimeres.Adapter.ApprovedBookingListAdapter;
 import com.example.coffeetimeres.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class LoginActivity extends AppCompatActivity {
     private Retrofit retrofit;
     private static Context context;
+    private BroadcastReceiver pushBroadcastReceiver;
+
     String serverUrl = "https://losermaru.pythonanywhere.com/login/";
      FirebaseAnalytics mFirebaseAnalytics;
     @Override
@@ -39,9 +48,24 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         FirebaseApp.initializeApp(this);
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
         ConstraintLayout button = findViewById(R.id.login);
         EditText mail = findViewById(R.id.nameEdit);
         EditText password = findViewById(R.id.passwordEdit);
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            return;
+                        }
+
+                        String token = task.getResult();
+                        Log.e("Token", "token -> " + token);
+                    }
+                });
+
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
