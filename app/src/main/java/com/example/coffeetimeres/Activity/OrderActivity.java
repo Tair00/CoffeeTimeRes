@@ -51,12 +51,14 @@ public class OrderActivity extends Activity {
     private ApprovedBookingListAdapter secondAdapter;
     private RecyclerView secondRecyclerView;
     private BroadcastReceiver pushBroadcastReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order);
         String token = getIntent().getStringExtra("access_token");
         FirebaseApp.initializeApp(this);
+        sendTokenToServer();
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         recyclerView = findViewById(R.id.view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -82,6 +84,7 @@ public class OrderActivity extends Activity {
                     }
                 });
 
+
         pushBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -97,7 +100,7 @@ public class OrderActivity extends Activity {
                                 String message = extras.getString(PushService.KEY_MESSAGE);
                                 if (message != null) {
                                     Log.e("TAG", "MESSAGE_KEY  -> " + message);
-                                    Toast.makeText(getApplicationContext(),message,Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
                                 }
                             } else {
                                 Log.e("TAG", "NO_");
@@ -112,11 +115,13 @@ public class OrderActivity extends Activity {
         registerReceiver(pushBroadcastReceiver, intentFilter);
         executeGetRequest();
     }
+
     @Override
     protected void onDestroy() {
         unregisterReceiver(pushBroadcastReceiver);
         super.onDestroy();
     }
+
     private void executeGetRequest() {
         String token = getIntent().getStringExtra("access_token"); // Получение значения токена
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -147,6 +152,7 @@ public class OrderActivity extends Activity {
         };
         queue.add(request);
     }
+
     private void parseResponse(JSONArray response) {
         try {
             for (int i = 0; i < response.length(); i++) {
@@ -187,8 +193,9 @@ public class OrderActivity extends Activity {
         String coffeeImage = coffeeObject.getString("image");
         String smartphoneKey = jsonObject.getJSONObject("user").getString("smartphone_key");
         Log.e("TAG token", smartphoneKey);
-        return new BookingItem(status, name, cafeName, pickUpTime, coffeeName, coffeeDescription, coffeeImage, id, cafeId, coffeeId,smartphoneKey);
+        return new BookingItem(status, name, cafeName, pickUpTime, coffeeName, coffeeDescription, coffeeImage, id, cafeId, coffeeId, smartphoneKey);
     }
+
     private void fetchRestaurantName(int id, BookingItem booking) {
         String url = "https://losermaru.pythonanywhere.com/orders/" + id;
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -213,5 +220,62 @@ public class OrderActivity extends Activity {
                     }
                 });
         queue.add(request);
+    }
+
+    private void sendTokenToServer() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String ratingUrl = "https://losermaru.pythonanywhere.com/cafe/cafe_key";
+        String token = getIntent().getStringExtra("access_token");
+        JSONObject jsonBody = new JSONObject();
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            // Если не удалось получить токен, обработайте ошибку здесь
+                            return;
+                        }
+                        // Токен успешно получен
+                        String Mytoken = task.getResult();
+                        // Создание JSON тела запроса
+                        JSONObject jsonBody = new JSONObject();
+                        try {
+                            jsonBody.put("cafe_key",Mytoken );
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, ratingUrl, jsonBody,
+                                new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        Log.e("TAG_TOKENLOL", Mytoken);
+                                    }
+                                },
+                                new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        // Обработка ошибки
+                                        String errorMessage = "Error sending rating: " + error.getMessage();
+                                        Toast.makeText(OrderActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                                        if (error.networkResponse != null) {
+                                            int statusCode = error.networkResponse.statusCode;
+                                            String responseData = new String(error.networkResponse.data);
+                                            Log.e("ErrorResponse", "Status Code: " + statusCode);
+                                            Log.e("ErrorResponse", "Response Data: " + responseData);
+                                        }
+                                    }
+                                }) {
+                            @Override
+                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                Map<String, String> headers = new HashMap<>();
+                                headers.put("Authorization", "Bearer " + token);
+                                return headers;
+                            }
+                        };
+
+                        // Добавление запроса в очередь
+                        queue.add(request);
+                    }
+                });
     }
 }

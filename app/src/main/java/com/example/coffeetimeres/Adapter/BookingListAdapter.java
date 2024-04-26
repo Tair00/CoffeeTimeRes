@@ -23,6 +23,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.coffeetimeres.Domain.ApiKeyLoader;
 import com.example.coffeetimeres.Domain.BookingItem;
+import com.example.coffeetimeres.Fragments.BodyFragment;
 import com.example.coffeetimeres.Interface.BookingItemClickListener;
 import com.example.coffeetimeres.R;
 
@@ -34,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.ViewHolder> implements BookingItemClickListener {
+public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.ViewHolder> implements BookingItemClickListener,BodyFragment.OnBodySetListener {
     private  String token;
     private static Context context;
     private List<BookingItem> bookingList;
@@ -135,6 +136,11 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
                 count++;
             }
         }
+    }
+
+    @Override
+    public void onUserNameSet(String userName) {
+
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
