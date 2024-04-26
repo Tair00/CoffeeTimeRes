@@ -21,6 +21,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.coffeetimeres.Domain.ApiKeyLoader;
 import com.example.coffeetimeres.Domain.BookingItem;
 import com.example.coffeetimeres.Interface.BookingItemClickListener;
 import com.example.coffeetimeres.R;
@@ -28,6 +29,7 @@ import com.example.coffeetimeres.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,23 +76,21 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
                 JSONObject jsonObject = response.getJSONObject(String.valueOf(i));
                 int id = jsonObject.getInt("id");
                 String status = jsonObject.getString("status");
-
                 if ("waiting".equals(status)) {
                     JSONObject userObject = jsonObject.getJSONObject("user");
                     String name = userObject.getString("name");
-
                     JSONObject cafeObject = jsonObject.getJSONObject("cafe");
                     int cafeId = cafeObject.getInt("id");
                     String cafeName = cafeObject.getString("name");
-
                     JSONObject coffeeObject = jsonObject.getJSONObject("coffee");
                     int coffeeId = coffeeObject.getInt("id");
                     String coffeeName = coffeeObject.getString("name");
                     String coffeeDescription = coffeeObject.getString("description");
                     String coffeeImage = coffeeObject.getString("image");
-
                     String pickUpTime = jsonObject.getString("pick_up_time").substring(0, 16);
-                    bookingList.add(new BookingItem(status, name, cafeName, pickUpTime, coffeeName, coffeeDescription, coffeeImage, id, cafeId, coffeeId));
+                    String smartphoneKey = jsonObject.getJSONObject("user").getString("smartphone_key");
+                    Log.e("TAG token", smartphoneKey);
+                    bookingList.add(new BookingItem(status, name, cafeName, pickUpTime, coffeeName, coffeeDescription, coffeeImage, id, cafeId, coffeeId,smartphoneKey));
                 }
             }
             notifyDataSetChanged();
@@ -209,12 +209,62 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         BookingItem bookingItem = bookingList.get(position);
         String newStatus = "rejected";
         System.out.println(newStatus);
-
-        updateBookingStatus(bookingItem.getBookingId(), newStatus);
+        Log.e("TAG_CLICK",bookingItem.getYour_smartphone_key_here());
+        sendNotification(bookingItem.getYour_smartphone_key_here(), bookingItem.getCafeName(), "Ваш заказ был отклонен", "show_message", "Заказ отклонен");
 
         // Удаление элемента из списка и обновление отображения RecyclerView
         bookingList.remove(position);
         notifyDataSetChanged();
+    }
+    private void sendNotification(String to, String title, String body, String action, String message) {
+        try {
+            JSONObject notificationBody = new JSONObject();
+            notificationBody.put("title", title);
+            notificationBody.put("body", body);
+
+            JSONObject data = new JSONObject();
+            data.put("action", action);
+            data.put("message", message);
+
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("to", to);
+            requestBody.put("notification", notificationBody);
+            requestBody.put("data", data);
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, "https://fcm.googleapis.com/fcm/send", requestBody,
+                    new Response.Listener
+                            <JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d("TAG", "Уведомление успешно отправлено");
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e("TAG", "Ошибка при отправке уведомления: " + error.getMessage());
+                        }
+                    }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> headers = new HashMap<>();
+                    String apiKeyLoader = null;
+                    try {
+                        apiKeyLoader = ApiKeyLoader.getApiKey();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    headers.put("Authorization", apiKeyLoader.toString());
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
+            };
+
+            RequestQueue queue = Volley.newRequestQueue(context);
+            queue.add(request);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -223,8 +273,9 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         BookingItem bookingItem = bookingList.get(position);
         String newStatus = "approved";
         System.out.println(newStatus);
-
         updateBookingStatus(bookingItem.getBookingId(), newStatus);
+        Log.e("TAG_CLICK",bookingItem.getYour_smartphone_key_here());
+        sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ подтвержден", "Ваш заказ был подтвержден", "show_message", "Заказ подтвержден");
 
         // Удаление элемента из списка и обновление отображения RecyclerView
         bookingList.remove(position);

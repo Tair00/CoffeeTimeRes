@@ -174,7 +174,7 @@ public class OrderActivity extends Activity {
         String status = jsonObject.getString("status");
         int id = jsonObject.getInt("id");
         String name = jsonObject.getString("name");
-        String pickUpTime = jsonObject.getString("pick_up_time").substring(0, 16);
+        String pickUpTime = jsonObject.getString("pick_up_time").substring(0, 16).replace('T', ' ');
 
         JSONObject cafeObject = jsonObject.getJSONObject("cafe");
         int cafeId = cafeObject.getInt("id");
@@ -185,8 +185,9 @@ public class OrderActivity extends Activity {
         String coffeeName = coffeeObject.getString("name");
         String coffeeDescription = coffeeObject.getString("description");
         String coffeeImage = coffeeObject.getString("image");
-
-        return new BookingItem(status, name, cafeName, pickUpTime, coffeeName, coffeeDescription, coffeeImage, id, cafeId, coffeeId);
+        String smartphoneKey = jsonObject.getJSONObject("user").getString("smartphone_key");
+        Log.e("TAG token", smartphoneKey);
+        return new BookingItem(status, name, cafeName, pickUpTime, coffeeName, coffeeDescription, coffeeImage, id, cafeId, coffeeId,smartphoneKey);
     }
     private void fetchRestaurantName(int id, BookingItem booking) {
         String url = "https://losermaru.pythonanywhere.com/orders/" + id;

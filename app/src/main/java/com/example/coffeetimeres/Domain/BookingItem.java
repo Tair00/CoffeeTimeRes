@@ -12,7 +12,17 @@ public class BookingItem {
     private int cafeId;
     private int coffeeId;
 
-    public BookingItem(String status, String userName, String cafeName, String pickUpTime, String coffeeName, String coffeeDescription, String coffeeImage, int bookingId, int cafeId, int coffeeId) {
+    public String getYour_smartphone_key_here() {
+        return your_smartphone_key_here;
+    }
+
+    public void setYour_smartphone_key_here(String your_smartphone_key_here) {
+        this.your_smartphone_key_here = your_smartphone_key_here;
+    }
+
+    private String your_smartphone_key_here;
+    public BookingItem(String status, String userName, String cafeName, String pickUpTime, String coffeeName, String coffeeDescription,
+                       String coffeeImage, int bookingId, int cafeId, int coffeeId,String your_smartphone_key_here) {
         this.status = status;
         this.userName = userName;
         this.cafeName = cafeName;
@@ -23,6 +33,7 @@ public class BookingItem {
         this.bookingId = bookingId;
         this.cafeId = cafeId;
         this.coffeeId = coffeeId;
+        this.your_smartphone_key_here = your_smartphone_key_here;
     }
 
     // Геттеры и сеттеры для всех полей
