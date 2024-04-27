@@ -51,7 +51,7 @@ public class OrderActivity extends Activity {
     private ApprovedBookingListAdapter secondAdapter;
     private RecyclerView secondRecyclerView;
     private BroadcastReceiver pushBroadcastReceiver;
-
+    private String token ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,36 +84,19 @@ public class OrderActivity extends Activity {
                     }
                 });
 
-
         pushBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Bundle extras = intent.getExtras();
-                Log.e("TAG", "MESSAGE_RECEIVED ");
-                if (extras != null) {
-                    String key = extras.keySet().iterator().next();
-                    if (key.equals(PushService.KEY_ACTION)) {
-                        Log.e("TAG", "KEY  -> " + key);
-                        String action = extras.getString(key);
-                        if (action != null) {
-                            if (action.equals(PushService.ACTIONS_SHOW_MESSAGE)) {
-                                String message = extras.getString(PushService.KEY_MESSAGE);
-                                if (message != null) {
-                                    Log.e("TAG", "MESSAGE_KEY  -> " + message);
-                                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Log.e("TAG", "NO_");
-                            }
-                        }
-                    }
-                }
+                Log.e("TAG_NEW_TOKEn", token);
+               executeGetRequest(token);
             }
         };
+
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PushService.INTENT_FILTER);
         registerReceiver(pushBroadcastReceiver, intentFilter);
-        executeGetRequest();
+
+        executeGetRequest(token);
     }
 
     @Override
@@ -122,8 +105,8 @@ public class OrderActivity extends Activity {
         super.onDestroy();
     }
 
-    private void executeGetRequest() {
-        String token = getIntent().getStringExtra("access_token"); // Получение значения токена
+    public void executeGetRequest(String token) {
+        bookingList.clear();
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://losermaru.pythonanywhere.com/orders/";
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null,

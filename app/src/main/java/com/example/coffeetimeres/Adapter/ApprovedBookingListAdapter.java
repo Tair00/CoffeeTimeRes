@@ -77,7 +77,7 @@ public class ApprovedBookingListAdapter extends RecyclerView.Adapter<ApprovedBoo
                 int id = jsonObject.getInt("id");
                 String status = jsonObject.getString("status");
 
-                if ("waiting".equals(status)) {
+                if ("approved".equals(status)) {
                     JSONObject userObject = jsonObject.getJSONObject("user");
                     String name = userObject.getString("name");
 
@@ -116,16 +116,13 @@ public class ApprovedBookingListAdapter extends RecyclerView.Adapter<ApprovedBoo
             JSONObject notificationBody = new JSONObject();
             notificationBody.put("title", title);
             notificationBody.put("body", body);
-
             JSONObject data = new JSONObject();
             data.put("action", action);
             data.put("message", message);
-
             JSONObject requestBody = new JSONObject();
             requestBody.put("to", to);
             requestBody.put("notification", notificationBody);
             requestBody.put("data", data);
-
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, "https://fcm.googleapis.com/fcm/send", requestBody,
                     new Response.Listener
                             <JSONObject>() {
@@ -232,15 +229,12 @@ public class ApprovedBookingListAdapter extends RecyclerView.Adapter<ApprovedBoo
     }
     @Override
     public void onRejectClick(int position) {
-        // Ваш код обработки нажатия на кнопку отклонения заказа
         BookingItem bookingItem = bookingList.get(position);
         String newStatus = "rejected";
         System.out.println(newStatus);
-
         updateBookingStatus(bookingItem.getBookingId(), newStatus);
-        sendNotification(bookingItem.getYour_smartphone_key_here(), bookingItem.getCafeName(), "Ваш заказ был отклонен", "show_message", "Заказ отклонен");
-
-        // Удаление элемента из списка и обновление отображения RecyclerView
+        Log.e("TAG_CLICK",bookingItem.getYour_smartphone_key_here());
+        sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ отклонен", "Ваш заказ был отклонен", "show_message", "Заказ отклонен");
         bookingList.remove(position);
         notifyDataSetChanged();
     }
@@ -263,11 +257,11 @@ public class ApprovedBookingListAdapter extends RecyclerView.Adapter<ApprovedBoo
         System.out.println("наш айди" + bookingId);
         JSONObject requestBody = new JSONObject();
         try {
+            Log.e("STATUS",newStatus);
             requestBody.put("status", newStatus);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         RequestQueue queue = Volley.newRequestQueue(context);
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, url, requestBody,
                 new Response.Listener<JSONObject>() {

@@ -21,6 +21,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.coffeetimeres.Activity.OrderActivity;
 import com.example.coffeetimeres.Domain.ApiKeyLoader;
 import com.example.coffeetimeres.Domain.BookingItem;
 import com.example.coffeetimeres.Fragments.BodyFragment;
@@ -208,17 +209,25 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         }
     }
 
-
+    @Override
+    public void onApproveClick(int position) {
+        BookingItem bookingItem = bookingList.get(position);
+        String newStatus = "approved";
+        System.out.println(newStatus);
+        updateBookingStatus(bookingItem.getBookingId(), newStatus);
+        Log.e("TAG_CLICK",bookingItem.getYour_smartphone_key_here());
+        sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ подтвержден", "Ваш заказ был подтвержден", "show_message", "Заказ подтвержден");
+        bookingList.remove(position);
+        notifyDataSetChanged();
+    }
     @Override
     public void onRejectClick(int position) {
-        // Ваш код обработки нажатия на кнопку отклонения заказа
         BookingItem bookingItem = bookingList.get(position);
         String newStatus = "rejected";
         System.out.println(newStatus);
+        updateBookingStatus(bookingItem.getBookingId(), newStatus);
         Log.e("TAG_CLICK",bookingItem.getYour_smartphone_key_here());
-        sendNotification(bookingItem.getYour_smartphone_key_here(), bookingItem.getCafeName(), "Ваш заказ был отклонен", "show_message", "Заказ отклонен");
-
-        // Удаление элемента из списка и обновление отображения RecyclerView
+        sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ отклонен", "Ваш заказ был отклонен", "show_message", "Заказ отклонен");
         bookingList.remove(position);
         notifyDataSetChanged();
     }
@@ -242,12 +251,15 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
                             <JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            Log.d("TAG", "Уведомление успешно отправлено");
+                            Log.e("TAG_ORDER_TOKEN  ", token);
+                            ((OrderActivity) context).executeGetRequest(token);
                         }
+
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
+
                             Log.e("TAG", "Ошибка при отправке уведомления: " + error.getMessage());
                         }
                     }) {
@@ -273,31 +285,18 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         }
     }
 
-    @Override
-    public void onApproveClick(int position) {
-        // Ваш код обработки нажатия на кнопку подтверждения заказа
-        BookingItem bookingItem = bookingList.get(position);
-        String newStatus = "approved";
-        System.out.println(newStatus);
-        updateBookingStatus(bookingItem.getBookingId(), newStatus);
-        Log.e("TAG_CLICK",bookingItem.getYour_smartphone_key_here());
-        sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ подтвержден", "Ваш заказ был подтвержден", "show_message", "Заказ подтвержден");
 
-        // Удаление элемента из списка и обновление отображения RecyclerView
-        bookingList.remove(position);
-        notifyDataSetChanged();
-    }
 
     private void updateBookingStatus(int bookingId, String newStatus) {
         String url = "https://losermaru.pythonanywhere.com/orders/" + bookingId;
         System.out.println("наш айди" + bookingId);
         JSONObject requestBody = new JSONObject();
         try {
+            Log.e("STATUS",newStatus);
             requestBody.put("status", newStatus);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         RequestQueue queue = Volley.newRequestQueue(context);
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, url, requestBody,
                 new Response.Listener<JSONObject>() {
