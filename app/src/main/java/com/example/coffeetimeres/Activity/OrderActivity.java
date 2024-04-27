@@ -69,7 +69,7 @@ public class OrderActivity extends Activity {
         secondRecyclerView = findViewById(R.id.secondRecyclerView);
         secondRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         approvedBookingList = new ArrayList<>();
-        secondAdapter = new ApprovedBookingListAdapter(OrderActivity.this, approvedBookingList);
+        secondAdapter = new ApprovedBookingListAdapter(OrderActivity.this, approvedBookingList,token);
         secondRecyclerView.setAdapter(secondAdapter);
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {

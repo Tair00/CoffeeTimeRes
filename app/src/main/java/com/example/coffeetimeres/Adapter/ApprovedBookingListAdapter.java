@@ -39,10 +39,10 @@ public class ApprovedBookingListAdapter extends RecyclerView.Adapter<ApprovedBoo
     private static Context context;
     private List<BookingItem> bookingList;
 
-    public ApprovedBookingListAdapter(Context context, List<BookingItem> bookingList) {
-        this.context = context;
-        this.bookingList = bookingList;
-    }
+//    public ApprovedBookingListAdapter(Context context, List<BookingItem> bookingList) {
+//        this.context = context;
+//        this.bookingList = bookingList;
+//    }
     public ApprovedBookingListAdapter(Context context, List<BookingItem> bookingList, String token) {
         this.context = context;
         this.bookingList = bookingList;
@@ -230,7 +230,7 @@ public class ApprovedBookingListAdapter extends RecyclerView.Adapter<ApprovedBoo
     @Override
     public void onRejectClick(int position) {
         BookingItem bookingItem = bookingList.get(position);
-        String newStatus = "rejected";
+        String newStatus = "delete";
         System.out.println(newStatus);
         updateBookingStatus(bookingItem.getBookingId(), newStatus);
         Log.e("TAG_CLICK",bookingItem.getYour_smartphone_key_here());
@@ -238,23 +238,22 @@ public class ApprovedBookingListAdapter extends RecyclerView.Adapter<ApprovedBoo
         bookingList.remove(position);
         notifyDataSetChanged();
     }
+
     @Override
     public void onApproveClick(int position) {
-        // Ваш код обработки нажатия на кнопку подтверждения заказа
         BookingItem bookingItem = bookingList.get(position);
-        String newStatus = "approved";
+        String newStatus = "delete";
         System.out.println(newStatus);
-
         updateBookingStatus(bookingItem.getBookingId(), newStatus);
-
         // Удаление элемента из списка и обновление отображения RecyclerView
         bookingList.remove(position);
         notifyDataSetChanged();
     }
-
     private void updateBookingStatus(int bookingId, String newStatus) {
+        Log.e("TAG_bookingId_", String.valueOf(bookingId));
         String url = "https://losermaru.pythonanywhere.com/orders/" + bookingId;
         System.out.println("наш айди" + bookingId);
+        System.out.println("ADAPTER TOKEN"  + token);
         JSONObject requestBody = new JSONObject();
         try {
             Log.e("STATUS",newStatus);
