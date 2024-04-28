@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.ViewHolder> implements BookingItemClickListener,BodyFragment.OnBodySetListener {
+public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.ViewHolder> implements BookingItemClickListener{
     private  String token;
     private static Context context;
     private List<BookingItem> bookingList;
@@ -139,10 +139,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         }
     }
 
-    @Override
-    public void onUserNameSet(String userName) {
 
-    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView timeTextView;
@@ -166,7 +163,9 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
                         Animation anim = AnimationUtils.loadAnimation(context, R.anim.scale_up_down);
                         anim.setAnimationListener(new Animation.AnimationListener() {
                             @Override
-                            public void onAnimationStart(Animation animation) {}
+                            public void onAnimationStart(Animation animation) {
+
+                            }
 
                             @Override
                             public void onAnimationEnd(Animation animation) {

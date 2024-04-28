@@ -17,53 +17,44 @@ import com.example.coffeetimeres.R;
 import org.jetbrains.annotations.Nullable;
 
 
-public class BodyFragment extends DialogFragment {
-    private String name;
-    private OnBodySetListener onBodySetListener;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
-    public static BodyFragment newInstance() {
-        return new BodyFragment();
+import androidx.annotation.NonNull;
+
+import androidx.fragment.app.Fragment;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import androidx.fragment.app.Fragment;
+
+public class BodyFragment extends Fragment {
+
+    private LinearLayout linearLayout;
+
+    public BodyFragment() {
+        // Обязательный пустой публичный конструктор
     }
 
-    @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-        LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.body_fragment, null);
-        final EditText etUserName = dialogView.findViewById(R.id.bodyText);
-        ConstraintLayout btnSubmit = dialogView.findViewById(R.id.btnSubmit);
-
-        btnSubmit.setOnClickListener(v -> onSubmitClicked(etUserName));
-
-        builder.setView(dialogView);
-        setCancelable(false);
-
-        return builder.create();
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Надуваем макет для этого фрагмента
+        View view = inflater.inflate(R.layout.body_fragment, container, false);
+        linearLayout = view.findViewById(R.id.bodyFrag); // Инициализация linearLayout
+        return view;
     }
 
-    private void onSubmitClicked(EditText etUserName) {
-        name = etUserName.getText().toString();
-        if (name.isEmpty()) {
-            etUserName.setError(getString(R.string.error_empty_name));
-        } else {
-            notifyUserNameSet();
-            dismiss();
+    // Метод для отображения LinearLayout
+    public void showLinearLayout() {
+        if (linearLayout != null) {
+            linearLayout.setVisibility(View.VISIBLE);
         }
-    }
-
-    private void notifyUserNameSet() {
-        if (onBodySetListener != null) {
-            onBodySetListener.onUserNameSet(name);
-        }
-    }
-
-    public void setOnBodySetListener(OnBodySetListener listener) {
-        this.onBodySetListener = listener;
-    }
-
-    public interface OnBodySetListener {
-        void onUserNameSet(String userName
-        );
     }
 }

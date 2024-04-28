@@ -1,12 +1,15 @@
 package com.example.coffeetimeres.Adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +24,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.coffeetimeres.Activity.OrderActivity;
 import com.example.coffeetimeres.Domain.ApiKeyLoader;
 import com.example.coffeetimeres.Domain.BookingItem;
 import com.example.coffeetimeres.Interface.BookingItemClickListener;
@@ -36,14 +40,16 @@ import java.util.Map;
 
 public class ApprovedBookingListAdapter extends RecyclerView.Adapter<ApprovedBookingListAdapter.ViewHolder> implements BookingItemClickListener {
     private  String token;
+    private Context mContext;
     private static Context context;
     private List<BookingItem> bookingList;
 
-//    public ApprovedBookingListAdapter(Context context, List<BookingItem> bookingList) {
+    //    public ApprovedBookingListAdapter(Context context, List<BookingItem> bookingList) {
 //        this.context = context;
 //        this.bookingList = bookingList;
 //    }
     public ApprovedBookingListAdapter(Context context, List<BookingItem> bookingList, String token) {
+        mContext = context;
         this.context = context;
         this.bookingList = bookingList;
         this.token = token;
@@ -225,31 +231,65 @@ public class ApprovedBookingListAdapter extends RecyclerView.Adapter<ApprovedBoo
                 }
             });
 
+
         }
     }
     @Override
     public void onRejectClick(int position) {
         BookingItem bookingItem = bookingList.get(position);
-        String newStatus = "delete";
-        System.out.println(newStatus);
-        updateBookingStatus(bookingItem.getBookingId(), newStatus);
-        Log.e("TAG_CLICK",bookingItem.getYour_smartphone_key_here());
-        sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ отклонен", "Ваш заказ был отклонен", "show_message", "Заказ отклонен");
-        bookingList.remove(position);
-        notifyDataSetChanged();
+
+        OrderActivity orderActivity;
+        // Создаем AlertDialog.Builder для настройки AlertDialog
+        AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
+
+        // Устанавливаем заголовок и сообщение
+        alert.setTitle("Причина отклонения заказа");
+        alert.setMessage("Введите причину:");
+
+        // Создаем EditText для ввода текста
+        final EditText input = new EditText(mContext);
+
+        // Устанавливаем EditText в AlertDialog
+        alert.setView(input);
+
+        // Добавляем кнопки и обрабатываем нажатия
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Получаем введенный текст
+                String reason = input.getText().toString();
+
+                String newStatus = "delete";
+                System.out.println(newStatus + " Reason: " + reason);
+                updateBookingStatus(bookingItem.getBookingId(), newStatus, reason);
+                sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ отклонен", "Причина: " + reason, "show_message", "Заказ отклонен");
+                bookingList.remove(position);
+                notifyDataSetChanged();
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Отмена.
+            }
+        });
+
+        // Отображаем AlertDialog
+        alert.show();
     }
+
 
     @Override
     public void onApproveClick(int position) {
         BookingItem bookingItem = bookingList.get(position);
         String newStatus = "delete";
         System.out.println(newStatus);
-        updateBookingStatus(bookingItem.getBookingId(), newStatus);
+
+        updateBookingStatus(bookingItem.getBookingId(), newStatus,null);
         // Удаление элемента из списка и обновление отображения RecyclerView
         bookingList.remove(position);
         notifyDataSetChanged();
     }
-    private void updateBookingStatus(int bookingId, String newStatus) {
+    private void updateBookingStatus(int bookingId, String newStatus, String reason) {
         Log.e("TAG_bookingId_", String.valueOf(bookingId));
         String url = "https://losermaru.pythonanywhere.com/orders/" + bookingId;
         System.out.println("наш айди" + bookingId);
