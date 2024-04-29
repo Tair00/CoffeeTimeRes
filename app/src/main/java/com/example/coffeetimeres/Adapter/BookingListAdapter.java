@@ -1,12 +1,15 @@
 package com.example.coffeetimeres.Adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,12 +43,14 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
     private  String token;
     private static Context context;
     private List<BookingItem> bookingList;
+    private Context mContext;
 
     public BookingListAdapter(Context context, List<BookingItem> bookingList) {
         this.context = context;
         this.bookingList = bookingList;
     }
     public BookingListAdapter(Context context, List<BookingItem> bookingList, String token) {
+        mContext = context;
         this.context = context;
         this.bookingList = bookingList;
         this.token = token;
@@ -193,7 +198,6 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
 
                             @Override
                             public void onAnimationEnd(Animation animation) {
-                                // После окончания анимации удаляем элемент из списка
                                 listener.onApproveClick(position);
                             }
 
@@ -213,7 +217,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         BookingItem bookingItem = bookingList.get(position);
         String newStatus = "approved";
         System.out.println(newStatus);
-        updateBookingStatus(bookingItem.getBookingId(), newStatus);
+        updateBookingStatus(bookingItem.getBookingId(), newStatus,null);
         Log.e("TAG_CLICK",bookingItem.getYour_smartphone_key_here());
         sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ подтвержден", "Ваш заказ был подтвержден", "show_message", "Заказ подтвержден");
         bookingList.remove(position);
@@ -222,13 +226,44 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
     @Override
     public void onRejectClick(int position) {
         BookingItem bookingItem = bookingList.get(position);
-        String newStatus = "rejected";
-        System.out.println(newStatus);
-        updateBookingStatus(bookingItem.getBookingId(), newStatus);
-        Log.e("TAG_CLICK",bookingItem.getYour_smartphone_key_here());
-        sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ отклонен", "Ваш заказ был отклонен", "show_message", "Заказ отклонен");
-        bookingList.remove(position);
-        notifyDataSetChanged();
+
+        OrderActivity orderActivity;
+        // Создаем AlertDialog.Builder для настройки AlertDialog
+        AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
+
+        // Устанавливаем заголовок и сообщение
+        alert.setTitle("Причина отклонения заказа");
+        alert.setMessage("Введите причину:");
+
+        // Создаем EditText для ввода текста
+        final EditText input = new EditText(mContext);
+
+        // Устанавливаем EditText в AlertDialog
+        alert.setView(input);
+
+        // Добавляем кнопки и обрабатываем нажатия
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Получаем введенный текст
+                String reason = input.getText().toString();
+
+                String newStatus = "delete";
+                System.out.println(newStatus + " Reason: " + reason);
+                updateBookingStatus(bookingItem.getBookingId(), newStatus, reason);
+                sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ отклонен", "Причина: " + reason, "show_message", "Заказ отклонен");
+                bookingList.remove(position);
+                notifyDataSetChanged();
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Отмена.
+            }
+        });
+
+        // Отображаем AlertDialog
+        alert.show();
     }
     private void sendNotification(String to, String title, String body, String action, String message) {
         try {
@@ -286,7 +321,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
 
 
 
-    private void updateBookingStatus(int bookingId, String newStatus) {
+    private void updateBookingStatus(int bookingId, String newStatus, String reason) {
         String url = "https://losermaru.pythonanywhere.com/orders/" + bookingId;
         System.out.println("наш айди" + bookingId);
         JSONObject requestBody = new JSONObject();
