@@ -144,9 +144,9 @@ public class OrderActivity extends Activity {
                 BookingItem booking = parseBookingItem(jsonObject);
 
                 if ("waiting".equals(status)) {
-                    bookingList.add(booking);
+                    bookingList.add(0, booking); // Добавление элемента в начало списка
                 } else if ("approved".equals(status)) {
-                    approvedBookingList.add(booking);
+                    approvedBookingList.add(0, booking); // Добавление элемента в начало списка
                 }
             }
 

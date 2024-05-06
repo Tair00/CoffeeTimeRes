@@ -219,7 +219,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
         System.out.println(newStatus);
         updateBookingStatus(bookingItem.getBookingId(), newStatus,null);
         Log.e("TAG_CLICK",bookingItem.getYour_smartphone_key_here());
-        sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ подтвержден", "Ваш заказ был подтвержден", "show_message", "Заказ подтвержден");
+        sendNotification(bookingItem.getYour_smartphone_key_here(), "Заведение "+ bookingItem.getCafeName(), "Ваш заказ был подтвержден", "show_message","Заведение "+ bookingItem.getCafeName());
         bookingList.remove(position);
         notifyDataSetChanged();
     }
