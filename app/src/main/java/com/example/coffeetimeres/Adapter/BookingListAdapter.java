@@ -247,7 +247,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<BookingListAdapter.
                 // Получаем введенный текст
                 String reason = input.getText().toString();
 
-                String newStatus = "delete";
+                String newStatus = "reject";
                 System.out.println(newStatus + " Reason: " + reason);
                 updateBookingStatus(bookingItem.getBookingId(), newStatus, reason);
                 sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ отклонен", "Причина: " + reason, "show_message", "Заказ отклонен");

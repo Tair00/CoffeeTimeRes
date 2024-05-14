@@ -107,6 +107,7 @@ public class OrderActivity extends Activity {
 
     public void executeGetRequest(String token) {
         bookingList.clear();
+        approvedBookingList.clear();
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "https://losermaru.pythonanywhere.com/orders/";
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null,
@@ -144,9 +145,11 @@ public class OrderActivity extends Activity {
                 BookingItem booking = parseBookingItem(jsonObject);
 
                 if ("waiting".equals(status)) {
-                    bookingList.add(0, booking); // Добавление элемента в начало списка
+                    bookingList.add( booking); // Добавление элемента в начало списка
                 } else if ("approved".equals(status)) {
-                    approvedBookingList.add(0, booking); // Добавление элемента в начало списка
+                    if (!approvedBookingList.contains(booking)) {
+                        approvedBookingList.add( booking); // Добавление элемента в начало списка только если его нет в списке
+                    }
                 }
             }
 

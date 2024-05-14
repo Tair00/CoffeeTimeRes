@@ -258,15 +258,16 @@ public class ApprovedBookingListAdapter extends RecyclerView.Adapter<ApprovedBoo
                 // Получаем введенный текст
                 String reason = input.getText().toString();
 
-                String newStatus = "delete";
+                String newStatus = "reject";
                 System.out.println(newStatus + " Reason: " + reason);
-                updateBookingStatus(bookingItem.getBookingId(), newStatus, reason);
-                  bookingList.remove(position);
+
                 notifyDataSetChanged();
                 if (!reason.isEmpty()) { // Проверяем, что строка reason не пустая
                     sendNotification(bookingItem.getYour_smartphone_key_here(), "Ваш заказ отклонен", "Причина: " + reason, "show_message", "Заказ отклонен");
-
+                    newStatus = "delete";
                 }
+                bookingList.remove(position);
+                updateBookingStatus(bookingItem.getBookingId(), newStatus, reason);
             }
         });
 
